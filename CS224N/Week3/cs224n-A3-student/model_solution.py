@@ -66,9 +66,9 @@ class CausalAttention(nn.Module):
         k = self.W_k(x)
         v = self.W_v(x)
 
-        q = rearrange(q, "b t (h d) -> b h t d", d=self.d_attention)
-        k = rearrange(k, "b t (h d) -> b h t d", d=self.d_attention)
-        v = rearrange(v, "b t (h d) -> b h t d", d=self.d_attention)
+        q = rearrange(q, "b s (h d) -> b h s d", d=self.d_attention)
+        k = rearrange(k, "b s (h d) -> b h s d", d=self.d_attention)
+        v = rearrange(v, "b s (h d) -> b h s d", d=self.d_attention)
 
         attn_scores = torch.matmul(q, k.transpose(-1, -2)) / math.sqrt(self.d_attention)
 
@@ -85,7 +85,7 @@ class CausalAttention(nn.Module):
 
         attn_probs = softmax(attn_scores, dim=-1)
         attn_output = torch.matmul(attn_probs, v)
-        attn_output = rearrange(attn_output, "b h t d -> b t (h d)")
+        attn_output = rearrange(attn_output, "b h s d -> b s (h d)")
         output = self.W_o(attn_output)
 
         if attention_mask is not None:
